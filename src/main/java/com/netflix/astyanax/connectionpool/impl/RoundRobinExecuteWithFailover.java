@@ -29,7 +29,7 @@ public class RoundRobinExecuteWithFailover<CL, R> extends AbstractExecuteWithFai
         if (pools == null || pools.isEmpty()) {
             throw new NoAvailableHostsException("No hosts to borrow from");
         }
-        
+
         size = pools.size();
         retryCountdown = Math.min(config.getMaxFailoverCount(), size);
         if (retryCountdown < 0)
@@ -42,7 +42,11 @@ public class RoundRobinExecuteWithFailover<CL, R> extends AbstractExecuteWithFai
 
     public int getNextHostIndex() {
         try {
-            return index % size;
+            int index_ = Math.abs(index);
+            if (index_ < 0) { // this.index is Integer.MIN_VALUE
+                index_ = Math.abs(++index);
+            }
+            return index_ % size;
         }
         finally {
             index++;
